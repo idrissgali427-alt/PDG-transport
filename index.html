@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GaliBusiness - Gestion de Transport</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <aside class="sidebar">
+        <h1><i class="fas fa-bus logo"></i> GaliBusiness</h1>
+        <nav>
+            <ul>
+                <li><a href="#" class="nav-link active" data-section="tableau-bord-dashboard"><i class="fas fa-tachometer-alt"></i> Tableau de Bord</a></li>
+                <li><a href="#" class="nav-link" data-section="formulaire-entreprise"><i class="fas fa-bus-alt"></i> Enregistrer Bus</a></li>
+                <li><a href="#" class="nav-link" data-section="versement-mensuel"><i class="fas fa-hand-holding-usd"></i> Versement Mensuel</a></li>
+                <li><a href="#" class="nav-link" data-section="bilan-mensuel-dashboard"><i class="fas fa-chart-bar"></i> Bilan Mensuel</a></li>
+                <li><a href="#" class="nav-link" data-section="rapport-global"><i class="fas fa-file-invoice"></i> Rapport Global</a></li>
+                <li><a href="#" class="nav-link" data-section="section-chauffeur"><i class="fas fa-user-friends"></i> Info Chauffeur</a></li>
+                <li><a href="#" class="nav-link" data-section="section-employes"><i class="fas fa-users"></i> Employés</a></li>
+                <li><a href="#" class="nav-link" data-section="section-benefice"><i class="fas fa-chart-pie"></i> Bénéfice</a></li>
+                <li><a href="#" class="nav-link" data-section="conseils-section"><i class="fas fa-lightbulb"></i> Conseils Personnalisés</a></li>
+            </ul>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="header">
+            <h2 id="currentSectionTitle">Tableau de Bord</h2>
+            <div class="accountant-info">
+                <label for="accountantName">Nom du Caissier:</label>
+                <input type="text" id="accountantName" placeholder="Entrez votre nom">
+                <span id="current-datetime" class="datetime"></span>
+            </div>
+        </header>
+
+        <section id="tableau-bord-dashboard" class="content-section active">
+            <h3>Statistiques Générales</h3>
+            <div class="metrics-grid">
+                <div class="metric-card">
+                    <h4>Total Versements Chauffeurs</h4>
+                    <p id="totalAchats">0 XAF</p>
+                </div>
+                <div class="metric-card">
+                    <h4>Total Versements Contrôleurs</h4>
+                    <p id="totalProduction">0 XAF</p>
+                </div>
+                <div class="metric-card blue">
+                    <h4>Total Général des Dépôts</h4>
+                    <p id="totalDepotDashboard">0 XAF</p>
+                </div>
+                <div class="metric-card orange">
+                    <h4>Versements Mois Actuel</h4>
+                    <p id="bilanVersementsMensuelActuel">0 XAF</p>
+                </div>
+            </div>
+
+            <h3>Évolution des Versements</h3>
+            <div class="chart-container">
+                <canvas id="summaryChart"></canvas>
+            </div>
+        </section>
+
+        <section id="formulaire-entreprise" class="content-section">
+            <h2>Enregistrer un Nouveau Bus</h2>
+            <form id="formulaireEntrepriseForm" class="data-form">
+                <input type="hidden" id="entrepriseId">
+                <div class="form-group">
+                    <label for="typeEntrepriseForm">Type de Bus:</label>
+                    <input type="text" id="typeEntrepriseForm" placeholder="Ex: Hiace, Coaster, etc." required>
+                </div>
+                <div class="form-group">
+                    <label for="dgForm">Nom du Chauffeur:</label>
+                    <input type="text" id="dgForm" placeholder="Nom complet du chauffeur" required>
+                </div>
+                <div class="form-group">
+                    <label for="controleurForm">Nom du Contrôleur:</label>
+                    <input type="text" id="controleurForm" placeholder="Nom complet du contrôleur" required>
+                </div>
+                <div class="form-group">
+                    <label for="matriculationForm">Matriculation:</label>
+                    <input type="text" id="matriculationForm" placeholder="Ex: 1234AB01" required>
+                </div>
+                <div class="form-group">
+                    <label for="dateForm">Date d'enregistrement:</label>
+                    <input type="date" id="dateForm" value="2025-01-01" required>
+                </div>
+                <div class="form-group">
+                    <label for="comptableForm">Enregistré par (Caissier):</label>
+                    <input type="text" id="comptableForm" readonly>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Enregistrer Bus</button>
+                    <button type="button" class="btn btn-secondary" id="cancelEntrepriseEdit" style="display: none;"><i class="fas fa-undo"></i> Annuler Édition</button>
+                </div>
+            </form>
+
+            <h3>Bus Enregistrés</h3>
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>N° Rapport Bus</th>
+                            <th>Type de Bus</th>
+                            <th>Chauffeur</th>
+                            <th>Contrôleur</th>
+                            <th>Matriculation</th>
+                            <th>Date Enregistrement</th>
+                            <th>Comptable</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-formulaire-entreprise-body">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="versement-mensuel" class="content-section">
+            <h2>Enregistrer un Versement Mensuel</h2>
+            <form id="versementMensuelForm" class="data-form">
+                <input type="hidden" id="versementId">
+                <div class="form-group">
+                    <label for="selectChauffeurVersement">Sélectionner le chauffeur:</label>
+                    <select id="selectChauffeurVersement" required>
+                        <option value="">Sélectionner un chauffeur</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="rapportEntreprise">N° Rapport Bus:</label>
+                    <input type="text" id="rapportEntreprise" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="typeEntrepriseVersement">Type de Bus:</label>
+                    <input type="text" id="typeEntrepriseVersement" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="controleurVersement">Nom du Contrôleur:</label>
+                    <input type="text" id="controleurVersement" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="matriculationVersement">Matriculation:</label>
+                    <input type="text" id="matriculationVersement" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="dateVersement">Date du Versement:</label>
+                    <input type="date" id="dateVersement" value="2025-01-01" required>
+                </div>
+                <div class="form-group">
+                    <label for="caAchat">Montant du Versement Chauffeur:</label>
+                    <input type="number" id="caAchat" min="0" value="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="caProduction">Montant du Versement Contrôleur:</label>
+                    <input type="number" id="caProduction" min="0" value="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="montantDepot">Montant Total Déposé:</label>
+                    <input type="text" id="montantDepot" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="comptableVersement">Enregistré par (Caissier):</label>
+                    <input type="text" id="comptableVersement" readonly>
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Enregistrer Versement</button>
+                    <button type="button" class="btn btn-secondary" id="cancelVersementEdit" style="display: none;"><i class="fas fa-undo"></i> Annuler Édition</button>
+                </div>
+            </form>
+
+            <h3>Historique des Versements</h3>
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>N° Rapport Bus</th>
+                            <th>Type</th>
+                            <th>Chauffeur</th>
+                            <th>Contrôleur</th>
+                            <th>Matriculation</th>
+                            <th>Comptable</th>
+                            <th>Date Versement</th>
+                            <th>M. Chauffeur</th>
+                            <th>M. Contrôleur</th>
+                            <th>Total Versé</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-versement-mensuel-body">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="bilan-mensuel-dashboard" class="content-section">
+            <h2>Bilan Mensuel Détaillé</h2>
+            <div class="data-form">
+                <div class="form-group">
+                    <label for="bilanMois">Mois:</label>
+                    <select id="bilanMois" required>
+                        <option value="1">Janvier</option>
+                        <option value="2">Février</option>
+                        <option value="3">Mars</option>
+                        <option value="4">Avril</option>
+                        <option value="5">Mai</option>
+                        <option value="6">Juin</option>
+                        <option value="7">Juillet</option>
+                        <option value="8">Août</option>
+                        <option value="9">Septembre</option>
+                        <option value="10">Octobre</option>
+                        <option value="11">Novembre</option>
+                        <option value="12">Décembre</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="bilanAnnee">Année:</label>
+                    <input type="number" id="bilanAnnee" value="2025" min="2000" max="2100" required>
+                </div>
+                <div class="form-group">
+                    <label for="bilanTypeEntreprise">Filtrer par Type de Bus:</label>
+                    <select id="bilanTypeEntreprise">
+                        <option value="">Tous les bus</option>
+                    </select>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-info" id="genererBilanBtn"><i class="fas fa-sync-alt"></i> Générer Bilan</button>
+                    <button type="button" class="btn btn-secondary" id="printBilanBtn" style="display: none;"><i class="fas fa-print"></i> Imprimer Bilan</button>
+                </div>
+            </div>
+
+            <div id="bilanOutput">
+                <p>Sélectionnez un mois, une année et un type de bus (optionnel) pour générer le bilan.</p>
+            </div>
+
+            <div class="chart-container" id="bilanChartContainer" style="display: none;">
+                <canvas id="bilanMensuelChart"></canvas>
+            </div>
+        </section>
+
+        <section id="rapport-global" class="content-section">
+            <h2>Rapport Global et Prélèvements</h2>
+            <div class="data-form">
+                <div class="form-group">
+                    <label for="rapportMois">Mois:</label>
+                    <select id="rapportMois" required>
+                        <option value="1">Janvier</option>
+                        <option value="2">Février</option>
+                        <option value="3">Mars</option>
+                        <option value="4">Avril</option>
+                        <option value="5">Mai</option>
+                        <option value="6">Juin</option>
+                        <option value="7">Juillet</option>
+                        <option value="8">Août</option>
+                        <option value="9">Septembre</option>
+                        <option value="10">Octobre</option>
+                        <option value="11">Novembre</option>
+                        <option value="12">Décembre</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="rapportAnnee">Année:</label>
+                    <input type="number" id="rapportAnnee" value="2025" min="2000" max="2100" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-primary" id="genererRapportBtn"><i class="fas fa-print"></i> Imprimer Rapport Global</button>
+                </div>
+            </div>
+
+            <div class="report-summary">
+                <h3>Résumé des Prélèvements (<span id="numeroRapport">N/A</span>)</h3>
+                <p><strong>Total Général des Dépôts pour le mois:</strong> <span id="rapportTotalDepot">0 XAF</span></p>
+                <p><strong>Assurances (10%):</strong> <span id="assurancesMontant">0 XAF</span></p>
+                <p><strong>Entretien (3%):</strong> <span id="entretienMontant">0 XAF</span></p>
+                <p><strong>Accident (7%):</strong> <span id="accidentMontant">0 XAF</span></p>
+                <p><strong>Montant Total Prélevé:</strong> <span id="montantPreleve">0 XAF</span></p>
+                <p><strong>Montant Total Versé Restant (après prélèvements):</strong> <span id="montantTotalVerseRestant">0 XAF</span></p>
+            </div>
+        </section>
+
+        <section id="section-chauffeur" class="content-section">
+            <h2>Informations Chauffeur et Versements</h2>
+            <div class="data-form">
+                <div class="form-group">
+                    <label for="chauffeurMois">Mois:</label>
+                    <select id="chauffeurMois" required>
+                        <option value="1">Janvier</option>
+                        <option value="2">Février</option>
+                        <option value="3">Mars</option>
+                        <option value="4">Avril</option>
+                        <option value="5">Mai</option>
+                        <option value="6">Juin</option>
+                        <option value="7">Juillet</option>
+                        <option value="8">Août</option>
+                        <option value="9">Septembre</option>
+                        <option value="10">Octobre</option>
+                        <option value="11">Novembre</option>
+                        <option value="12">Décembre</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="chauffeurAnnee">Année:</label>
+                    <input type="number" id="chauffeurAnnee" value="2025" min="2000" max="2100" required>
+                </div>
+                <div class="form-group">
+                    <label for="selectChauffeurInfo">Sélectionner un Chauffeur:</label>
+                    <select id="selectChauffeurInfo" required>
+                        <option value="">Sélectionnez un chauffeur</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="chauffeurControleur">Contrôleur Associé:</label>
+                    <input type="text" id="chauffeurControleur" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="chauffeurTotalVerse">Total Versé par ce Chauffeur (ce mois):</label>
+                    <input type="text" id="chauffeurTotalVerse" readonly>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-info" id="afficherChauffeurInfoBtn"><i class="fas fa-eye"></i> Afficher Informations</button>
+                </div>
+            </div>
+
+            <h3>Historique des Versements du Chauffeur</h3>
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Date Versement</th>
+                            <th>M. Chauffeur</th>
+                            <th>M. Contrôleur</th>
+                            <th>Total Versé</th>
+                            <th>Comptable</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-chauffeur-versements-body">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="section-employes" class="content-section">
+            <h2>Gestion des Employés</h2>
+            <form id="employeeForm" class="data-form">
+                <input type="hidden" id="employeeId">
+                <div class="form-group">
+                    <label for="employeeSelectChauffeur">Sélectionner un Chauffeur (Bus):</label>
+                    <select id="employeeSelectChauffeur" required>
+                        <option value="">Sélectionner un chauffeur</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="employeeRapportNumber">N° Rapport Bus:</label>
+                    <input type="text" id="employeeRapportNumber" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="employeeNomControleur">Nom Contrôleur:</label>
+                    <input type="text" id="employeeNomControleur" readonly>
+                </div>
+                <div class="form-group">
+                    <label for="employeeSalaireChauffeur">Salaire Chauffeur (Fixe):</label>
+                    <input type="number" id="employeeSalaireChauffeur" min="0" value="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="employeeSalaireControleur">Salaire Contrôleur (Fixe):</label>
+                    <input type="number" id="employeeSalaireControleur" min="0" value="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="employeePhotoChauffeur">Photo Chauffeur:</label>
+                    <input type="file" id="employeePhotoChauffeur" accept="image/*">
+                </div>
+                <div class="form-group">
+                    <label for="employeePhotoControleur">Photo Contrôleur:</label>
+                    <input type="file" id="employeePhotoControleur" accept="image/*">
+                </div>
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Enregistrer Employé</button>
+                    <button type="button" class="btn btn-secondary" id="cancelEmployeeEdit" style="display: none;"><i class="fas fa-undo"></i> Annuler Édition</button>
+                </div>
+            </form>
+
+            <h3>Liste des Employés</h3>
+            <div class="table-responsive">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>N° Rapport Bus</th>
+                            <th>Chauffeur</th>
+                            <th>Contrôleur</th>
+                            <th>Salaire Chauffeur</th>
+                            <th>Salaire Contrôleur</th>
+                            <th>Photo Chauffeur</th>
+                            <th>Photo Contrôleur</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-employes-body">
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="section-benefice" class="content-section">
+            <h2>Calcul des Bénéfices</h2>
+            <div class="data-form">
+                <div class="form-group">
+                    <label for="beneficeMois">Mois:</label>
+                    <select id="beneficeMois" required>
+                        <option value="1">Janvier</option>
+                        <option value="2">Février</option>
+                        <option value="3">Mars</option>
+                        <option value="4">Avril</option>
+                        <option value="5">Mai</option>
+                        <option value="6">Juin</option>
+                        <option value="7">Juillet</option>
+                        <option value="8">Août</option>
+                        <option value="9">Septembre</option>
+                        <option value="10">Octobre</option>
+                        <option value="11">Novembre</option>
+                        <option value="12">Décembre</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="beneficeAnnee">Année:</label>
+                    <input type="number" id="beneficeAnnee" value="2025" min="2000" max="2100" required>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-info" id="calculerBeneficeBtn"><i class="fas fa-calculator"></i> Calculer Bénéfice</button>
+                </div>
+            </div>
+
+            <div class="benefice-summary">
+                <h3>Résumé des Bénéfices</h3>
+                <p><strong>Montant Total Versé Restant (après prélèvements du Rapport Global):</strong> <span id="beneficeMontantTotalVerseRestant">0 XAF</span></p>
+                <p><strong>Salaire Total des Employés pour le Mois:</strong> <span id="salaireTotal">0 XAF</span></p>
+                <p><strong>Bénéfice Net:</strong> <span id="beneficeNet">0 XAF</span></p>
+                <div class="form-group">
+                    <label for="beneficeEpargner">Bénéfice à Épargner (suggestion):</label>
+                    <input type="text" id="beneficeEpargner" readonly placeholder="Calcul automatique">
+                </div>
+            </div>
+        </section>
+
+        <section id="conseils-section" class="content-section">
+            <h2>Conseils Personnalisés</h2>
+            <div class="data-form">
+                <p>Cette section vous offre des conseils et des visualisations basées sur les performances de votre entreprise.</p>
+                <p>Utilisez le bouton ci-dessous pour générer des analyses.</p>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-info" id="genererConseilsBtn"><i class="fas fa-lightbulb"></i> Générer Conseils</button>
+                </div>
+                <div class="advice-content">
+                    <p>Cliquez sur "Générer Conseils" pour voir les insights.</p>
+                </div>
+                <div class="chart-container" style="margin-top: 20px;">
+                    <canvas id="conseilsChart"></canvas>
+                </div>
+            </div>
+        </section>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>
