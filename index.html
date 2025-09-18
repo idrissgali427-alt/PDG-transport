@@ -9,6 +9,27 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
+
+
+
+
+    <script>
+//debut ducode
+
+        // Le code de protection est la première chose qui s'exécute
+        const motDePasseCorrect = '00T1';
+        const motDePasseSaisi = prompt('Veuillez entrer le mot de passe :');
+
+        if (motDePasseSaisi !== motDePasseCorrect) {
+            alert('Mot de passe incorrect. Accès refusé.');
+            window.location.href = 'https://www.google.com'; // Redirection immédiate
+        } else {
+            console.log('Accès autorisé ! Chargement de l\'application...');
+        }
+//fin du code
+
+    </script>
+
     <aside class="sidebar">
         <h1><i class="fas fa-bus logo"></i> GaliBusiness</h1>
         <nav>
@@ -461,4 +482,5 @@
     </main>
     <script src="script.js"></script>
 </body>
+
 </html>
